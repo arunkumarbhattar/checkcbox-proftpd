@@ -27,7 +27,9 @@
 /* House initialization and main program loop */
 
 #include "conf.h"
-
+#include <string_tainted.h>
+#include <stdlib_tainted.h>
+#include <checkcbox_extensions.h>
 #ifdef HAVE_GETOPT_H
 # include <getopt.h>
 #endif
@@ -476,10 +478,10 @@ static size_t get_max_cmd_sz(void) {
 
 int pr_cmd_read(cmd_rec **res) {
   static long cmd_bufsz = -1;
-  static char *cmd_buf = NULL;
+  static _TPtr<char> cmd_buf = NULL;
   int cmd_buflen;
   unsigned int too_large_count = 0;
-  char *ptr;
+  _TPtr<char> ptr = NULL;
 
   if (res == NULL) {
     errno = EINVAL;
@@ -491,13 +493,13 @@ int pr_cmd_read(cmd_rec **res) {
   }
 
   if (cmd_buf == NULL) {
-    cmd_buf = pcalloc(session.pool, cmd_bufsz + 1);
+    cmd_buf = t_calloc(session.pool, cmd_bufsz + 1);
   }
 
   while (TRUE) {
     pr_signals_handle();
 
-    memset(cmd_buf, '\0', cmd_bufsz);
+    t_memset(cmd_buf, '\0', cmd_bufsz);
 
     cmd_buflen = pr_netio_telnet_gets2(cmd_buf, cmd_bufsz, session.c->instrm,
       session.c->outstrm);
@@ -564,11 +566,11 @@ int pr_cmd_read(cmd_rec **res) {
      * command handlers themselves, via cmd->arg.  This small hack
      * reduces the burden on SITE module developers, however.
      */
-    if (strncasecmp(ptr, C_SITE, 4) == 0) {
+    if (t_strncasecmp(ptr, C_SITE, 4) == 0) {
       flags |= PR_STR_FL_PRESERVE_WHITESPACE;
     }
 
-    cmd = make_ftp_cmd(session.pool, ptr, cmd_buflen, flags);
+    cmd = make_ftp_cmd(session.pool, (char*)TaintedToCheckedStrAdaptor(ptr), cmd_buflen, flags);
     if (cmd != NULL) {
       *res = cmd;
 

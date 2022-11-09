@@ -201,13 +201,13 @@ int pr_netio_shutdown(pr_netio_stream_t *, int);
  * telnet characters are handled (which takes care of the [IAC]ABOR
  * command, and odd clients
  */
-char *pr_netio_telnet_gets(char *, size_t, pr_netio_stream_t *,
+_TPtr<char> pr_netio_telnet_gets(_TPtr<char> , size_t, pr_netio_stream_t *,
   pr_netio_stream_t *);
 
 /* Similar to pr_netio_telnet_gets(), except that it returns the number of
  * bytes stored in the given buffer, or -1 if there was an error.
  */
-int pr_netio_telnet_gets2(char *, size_t, pr_netio_stream_t *,
+int pr_netio_telnet_gets2(_TPtr<char> , size_t, pr_netio_stream_t *,
   pr_netio_stream_t *);
 
 int pr_netio_write(pr_netio_stream_t *, char *, size_t);

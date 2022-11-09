@@ -25,7 +25,8 @@
 /* NetIO API tests. */
 
 #include "tests.h"
-
+#include <checkcbox_extensions.h>
+#include <string_tainted.h>
 /* See RFC 854 for the definition of these Telnet values */
 
 /* Telnet "Interpret As Command" indicator */
@@ -54,7 +55,10 @@ static void test_cleanup(void) {
 
   pr_unregister_netio(PR_NETIO_STRM_CTRL|PR_NETIO_STRM_DATA|PR_NETIO_STRM_OTHR);
 }
-
+//_TLIB (for relaxing casts) indirection introduced to write into tainted buffer -->
+_TLIB size_t t_read(int fildes, _TPtr<char> buf, size_t nbyte) {
+  return read(fildes, (void*)buf, nbyte);
+}
 static int open_tmpfile(void) {
   int fd;
 
@@ -317,7 +321,8 @@ START_TEST (netio_buffer_alloc_test) {
 END_TEST
 
 START_TEST (netio_telnet_gets_args_test) {
-  char *buf, *res;
+  _TPtr<char> buf = NULL;
+  _TPtr<char> res = NULL;
   pr_netio_stream_t *in, *out;
 
   res = pr_netio_telnet_gets(NULL, 0, NULL, NULL);
@@ -325,7 +330,7 @@ START_TEST (netio_telnet_gets_args_test) {
   ck_assert_msg(errno == EINVAL, "Failed to set errno to EINVAL, got %s (%d)",
     strerror(errno), errno);
 
-  buf = "";
+  buf = StaticUncheckedToTStrAdaptor("");
   in = pr_netio_open(p, PR_NETIO_STRM_CTRL, -1, PR_NETIO_IO_RD);
   out = pr_netio_open(p, PR_NETIO_STRM_CTRL, -1, PR_NETIO_IO_WR);
 
@@ -351,7 +356,9 @@ START_TEST (netio_telnet_gets_args_test) {
 END_TEST
 
 START_TEST (netio_telnet_gets_single_line_test) {
-  char buf[256], *cmd, *res;
+  _TPtr<char> buf = string_tainted_malloc(256);
+  _TPtr<char> res = NULL;
+  char *cmd;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
   int len, xerrno;
@@ -374,7 +381,7 @@ START_TEST (netio_telnet_gets_single_line_test) {
 
   ck_assert_msg(res != NULL, "Failed to get string from stream: (%d) %s",
     xerrno, strerror(xerrno));
-  ck_assert_msg(strcmp(buf, cmd) == 0, "Expected string '%s', got '%s'", cmd,
+  ck_assert_msg(t_strcmp(buf, cmd) == 0, "Expected string '%s', got '%s'", cmd,
     buf);
   ck_assert_msg(pbuf->remaining == (size_t) xfer_bufsz,
     "Expected %d remaining bytes, got %lu", xfer_bufsz,
@@ -386,7 +393,9 @@ START_TEST (netio_telnet_gets_single_line_test) {
 END_TEST
 
 START_TEST (netio_telnet_gets_multi_line_test) {
-  char buf[256], *cmd, *first_cmd, *second_cmd, *res;
+  _TPtr<char> buf = string_tainted_malloc(256);
+    _TPtr<char> res = NULL;
+  char *cmd, *first_cmd, *second_cmd;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
   int len, xerrno;
@@ -412,16 +421,16 @@ START_TEST (netio_telnet_gets_multi_line_test) {
 
   ck_assert_msg(res != NULL, "Failed to get string from stream: (%d) %s",
     xerrno, strerror(xerrno));
-  ck_assert_msg(strcmp(buf, first_cmd) == 0, "Expected string '%s', got '%s'",
+  ck_assert_msg(t_strcmp(buf, first_cmd) == 0, "Expected string '%s', got '%s'",
     first_cmd, buf);
 
-  memset(buf, '\0', sizeof(buf));
+  t_memset(buf, '\0', sizeof(buf));
   res = pr_netio_telnet_gets(buf, sizeof(buf)-1, in, out);
   xerrno = errno;
 
   ck_assert_msg(res != NULL, "Failed to get string from stream: (%d) %s",
     xerrno, strerror(xerrno));
-  ck_assert_msg(strcmp(buf, second_cmd) == 0, "Expected string '%s', got '%s'",
+  ck_assert_msg(t_strcmp(buf, second_cmd) == 0, "Expected string '%s', got '%s'",
     second_cmd, buf);
 
   ck_assert_msg(pbuf->remaining == (size_t) xfer_bufsz,
@@ -434,7 +443,9 @@ START_TEST (netio_telnet_gets_multi_line_test) {
 END_TEST
 
 START_TEST (netio_telnet_gets_no_newline_test) {
-  char buf[8], *cmd, *res;
+    _TPtr<char> buf = string_tainted_malloc(8);
+    _TPtr<char> res = NULL;
+    char *cmd;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
   int len, xerrno;
@@ -465,7 +476,9 @@ START_TEST (netio_telnet_gets_no_newline_test) {
 END_TEST
 
 START_TEST (netio_telnet_gets_telnet_will_test) {
-  char buf[256], *cmd, *res, telnet_opt;
+  _TPtr<char> buf = string_tainted_malloc(256);
+    _TPtr<char> res = NULL;
+    char *cmd, telnet_opt;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
   int len, out_fd, xerrno;
@@ -495,12 +508,12 @@ START_TEST (netio_telnet_gets_telnet_will_test) {
 
   ck_assert_msg(res != NULL, "Failed to get string from stream: (%d) %s",
     xerrno, strerror(xerrno));
-  ck_assert_msg(strcmp(buf, cmd) == 0, "Expected string '%s', got '%s'", cmd,
+  ck_assert_msg(t_strcmp(buf, cmd) == 0, "Expected string '%s', got '%s'", cmd,
     buf);
 
   /* Rewind the output stream fd. */
   lseek(out_fd, 0, SEEK_SET);
-  len = read(out_fd, buf, sizeof(buf)-1);
+  len = t_read(out_fd, buf, sizeof(buf)-1);
   pr_netio_close(out);
 
   ck_assert_msg(len == 3, "Expected to read 3 bytes from output stream, got %d",
@@ -517,7 +530,9 @@ START_TEST (netio_telnet_gets_telnet_will_test) {
 END_TEST
 
 START_TEST (netio_telnet_gets_telnet_bare_will_test) {
-  char buf[256], *cmd, *res, telnet_opt;
+    _TPtr<char> buf = string_tainted_malloc(256);
+        _TPtr<char> res = NULL;
+        char *cmd, telnet_opt;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
   int len, xerrno;
@@ -543,13 +558,13 @@ START_TEST (netio_telnet_gets_telnet_bare_will_test) {
 
   ck_assert_msg(res != NULL, "Failed to get string from stream: (%d) %s",
     xerrno, strerror(xerrno));
-  ck_assert_msg(strncmp(buf, cmd, 7) == 0, "Expected string '%*s', got '%*s'",
+  ck_assert_msg(t_strncmp(buf, cmd, 7) == 0, "Expected string '%*s', got '%*s'",
     7, cmd, 7, buf);
   ck_assert_msg(buf[7] == (char) TELNET_WILL, "Expected WILL at index 7, got %d",
     buf[7]);
   ck_assert_msg(buf[8] == telnet_opt, "Expected Telnet opt %c at index 8, got %d",
     telnet_opt, buf[8]);
-  ck_assert_msg(strcmp(buf + 9, cmd + 7) == 0, "Expected string '%s', got '%s'",
+  ck_assert_msg(t_strcmp(buf + 9, cmd + 7) == 0, "Expected string '%s', got '%s'",
     cmd + 7, buf + 9);
 
   pr_netio_close(in);
@@ -558,7 +573,9 @@ START_TEST (netio_telnet_gets_telnet_bare_will_test) {
 END_TEST
 
 START_TEST (netio_telnet_gets_telnet_will_multi_read_test) {
-  char buf[256], *cmd, *res, telnet_opt;
+    _TPtr<char> buf = string_tainted_malloc(256);
+        _TPtr<char> res = NULL;
+        char *cmd, telnet_opt;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
   int len, out_fd, xerrno;
@@ -585,7 +602,7 @@ START_TEST (netio_telnet_gets_telnet_will_multi_read_test) {
 
   ck_assert_msg(res != NULL, "Failed to get string from stream: (%d) %s",
     xerrno, strerror(xerrno));
-  ck_assert_msg(strncmp(buf, cmd, 7) == 0, "Expected string '%*s', got '%*s'",
+  ck_assert_msg(t_strncmp(buf, cmd, 7) == 0, "Expected string '%*s', got '%*s'",
     7, cmd, 7, buf);
 
   /* Fill up the input stream's buffer with the rest of the Telnet WILL
@@ -604,14 +621,14 @@ START_TEST (netio_telnet_gets_telnet_will_multi_read_test) {
 
   ck_assert_msg(res != NULL, "Failed to get string from stream: (%d) %s",
     xerrno, strerror(xerrno));
-  ck_assert_msg(strcmp(buf, cmd) == 0, "Expected string '%s', got '%s'",
+  ck_assert_msg(t_strcmp(buf, cmd) == 0, "Expected string '%s', got '%s'",
     cmd, buf);
 
   pr_netio_close(in);
 
   /* Rewind the output stream fd. */
   lseek(out_fd, 0, SEEK_SET);
-  len = read(out_fd, buf, sizeof(buf)-1);
+  len = t_read(out_fd, buf, sizeof(buf)-1);
   pr_netio_close(out);
 
   ck_assert_msg(len == 3, "Expected to read 3 bytes from output stream, got %d",
@@ -628,7 +645,9 @@ START_TEST (netio_telnet_gets_telnet_will_multi_read_test) {
 END_TEST
 
 START_TEST (netio_telnet_gets_telnet_wont_test) {
-  char buf[256], *cmd, *res, telnet_opt;
+    _TPtr<char> buf = string_tainted_malloc(256);
+        _TPtr<char> res = NULL;
+        char *cmd, telnet_opt;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
   int len, out_fd, xerrno;
@@ -658,12 +677,12 @@ START_TEST (netio_telnet_gets_telnet_wont_test) {
 
   ck_assert_msg(res != NULL, "Failed to get string from stream: (%d) %s",
     xerrno, strerror(xerrno));
-  ck_assert_msg(strcmp(buf, cmd) == 0, "Expected string '%s', got '%s'", cmd,
+  ck_assert_msg(t_strcmp(buf, cmd) == 0, "Expected string '%s', got '%s'", cmd,
     buf);
 
   /* Rewind the output stream fd. */
   lseek(out_fd, 0, SEEK_SET);
-  len = read(out_fd, buf, sizeof(buf)-1);
+  len = t_read(out_fd, buf, sizeof(buf)-1);
   pr_netio_close(out);
 
   ck_assert_msg(len == 3, "Expected to read 3 bytes from output stream, got %d",
@@ -680,7 +699,9 @@ START_TEST (netio_telnet_gets_telnet_wont_test) {
 END_TEST
 
 START_TEST (netio_telnet_gets_telnet_bare_wont_test) {
-  char buf[256], *cmd, *res, telnet_opt;
+    _TPtr<char> buf = string_tainted_malloc(256);
+        _TPtr<char> res = NULL;
+        char *cmd, telnet_opt;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
   int len, xerrno;
@@ -706,13 +727,13 @@ START_TEST (netio_telnet_gets_telnet_bare_wont_test) {
 
   ck_assert_msg(res != NULL, "Failed to get string from stream: (%d) %s",
     xerrno, strerror(xerrno));
-  ck_assert_msg(strncmp(buf, cmd, 7) == 0, "Expected string '%*s', got '%*s'",
+  ck_assert_msg(t_strncmp(buf, cmd, 7) == 0, "Expected string '%*s', got '%*s'",
     7, cmd, 7, buf);
   ck_assert_msg(buf[7] == (char) TELNET_WONT, "Expected WONT at index 7, got %d",
     buf[7]);
   ck_assert_msg(buf[8] == telnet_opt, "Expected Telnet opt %c at index 8, got %d",
     telnet_opt, buf[8]);
-  ck_assert_msg(strcmp(buf + 9, cmd + 7) == 0, "Expected string '%s', got '%s'",
+  ck_assert_msg(t_strcmp(buf + 9, cmd + 7) == 0, "Expected string '%s', got '%s'",
     cmd + 7, buf + 9);
 
   pr_netio_close(in);
@@ -721,7 +742,9 @@ START_TEST (netio_telnet_gets_telnet_bare_wont_test) {
 END_TEST
 
 START_TEST (netio_telnet_gets_telnet_do_test) {
-  char buf[256], *cmd, *res, telnet_opt;
+    _TPtr<char> buf = string_tainted_malloc(256);
+        _TPtr<char> res = NULL;
+        char *cmd, telnet_opt;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
   int len, out_fd, xerrno;
@@ -751,12 +774,12 @@ START_TEST (netio_telnet_gets_telnet_do_test) {
 
   ck_assert_msg(res != NULL, "Failed to get string from stream: (%d) %s",
     xerrno, strerror(xerrno));
-  ck_assert_msg(strcmp(buf, cmd) == 0, "Expected string '%s', got '%s'", cmd,
+  ck_assert_msg(t_strcmp(buf, cmd) == 0, "Expected string '%s', got '%s'", cmd,
     buf);
 
   /* Rewind the output stream fd. */
   lseek(out_fd, 0, SEEK_SET);
-  len = read(out_fd, buf, sizeof(buf)-1);
+  len = t_read(out_fd, buf, sizeof(buf)-1);
   pr_netio_close(out);
 
   ck_assert_msg(len == 3, "Expected to read 3 bytes from output stream, got %d",
@@ -773,7 +796,9 @@ START_TEST (netio_telnet_gets_telnet_do_test) {
 END_TEST
 
 START_TEST (netio_telnet_gets_telnet_bare_do_test) {
-  char buf[256], *cmd, *res, telnet_opt;
+    _TPtr<char> buf = string_tainted_malloc(256);
+        _TPtr<char> res = NULL;
+        char *cmd, telnet_opt;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
   int len, xerrno;
@@ -799,13 +824,13 @@ START_TEST (netio_telnet_gets_telnet_bare_do_test) {
 
   ck_assert_msg(res != NULL, "Failed to get string from stream: (%d) %s",
     xerrno, strerror(xerrno));
-  ck_assert_msg(strncmp(buf, cmd, 7) == 0, "Expected string '%*s', got '%*s'",
+  ck_assert_msg(t_strncmp(buf, cmd, 7) == 0, "Expected string '%*s', got '%*s'",
     7, cmd, 7, buf);
   ck_assert_msg(buf[7] == (char) TELNET_DO, "Expected DO at index 7, got %d",
     buf[7]);
   ck_assert_msg(buf[8] == telnet_opt, "Expected Telnet opt %c at index 8, got %d",
     telnet_opt, buf[8]);
-  ck_assert_msg(strcmp(buf + 9, cmd + 7) == 0, "Expected string '%s', got '%s'",
+  ck_assert_msg(t_strcmp(buf + 9, cmd + 7) == 0, "Expected string '%s', got '%s'",
     cmd + 7, buf + 9);
 
   pr_netio_close(in);
@@ -814,7 +839,9 @@ START_TEST (netio_telnet_gets_telnet_bare_do_test) {
 END_TEST
 
 START_TEST (netio_telnet_gets_telnet_dont_test) {
-  char buf[256], *cmd, *res, telnet_opt;
+    _TPtr<char> buf = string_tainted_malloc(256);
+        _TPtr<char> res = NULL;
+        char *cmd, telnet_opt;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
   int len, out_fd, xerrno;
@@ -844,12 +871,12 @@ START_TEST (netio_telnet_gets_telnet_dont_test) {
 
   ck_assert_msg(res != NULL, "Failed to get string from stream: (%d) %s",
     xerrno, strerror(xerrno));
-  ck_assert_msg(strcmp(buf, cmd) == 0, "Expected string '%s', got '%s'", cmd,
+  ck_assert_msg(t_strcmp(buf, cmd) == 0, "Expected string '%s', got '%s'", cmd,
     buf);
 
   /* Rewind the output stream fd. */
   lseek(out_fd, 0, SEEK_SET);
-  len = read(out_fd, buf, sizeof(buf)-1);
+  len = t_read(out_fd, buf, sizeof(buf)-1);
   pr_netio_close(out);
 
   ck_assert_msg(len == 3, "Expected to read 3 bytes from output stream, got %d",
@@ -866,7 +893,9 @@ START_TEST (netio_telnet_gets_telnet_dont_test) {
 END_TEST
 
 START_TEST (netio_telnet_gets_telnet_bare_dont_test) {
-  char buf[256], *cmd, *res, telnet_opt;
+    _TPtr<char> buf = string_tainted_malloc(256);
+        _TPtr<char> res = NULL;
+        char *cmd, telnet_opt;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
   int len, xerrno;
@@ -892,13 +921,13 @@ START_TEST (netio_telnet_gets_telnet_bare_dont_test) {
 
   ck_assert_msg(res != NULL, "Failed to get string from stream: (%d) %s",
     xerrno, strerror(xerrno));
-  ck_assert_msg(strncmp(buf, cmd, 7) == 0, "Expected string '%*s', got '%*s'",
+  ck_assert_msg(t_strncmp(buf, cmd, 7) == 0, "Expected string '%*s', got '%*s'",
     7, cmd, 7, buf);
   ck_assert_msg(buf[7] == (char) TELNET_DONT, "Expected DONT at index 7, got %d",
     buf[7]);
   ck_assert_msg(buf[8] == telnet_opt, "Expected Telnet opt %c at index 8, got %d",
     telnet_opt, buf[8]);
-  ck_assert_msg(strcmp(buf + 9, cmd + 7) == 0, "Expected string '%s', got '%s'",
+  ck_assert_msg(t_strcmp(buf + 9, cmd + 7) == 0, "Expected string '%s', got '%s'",
     cmd + 7, buf + 9);
 
   pr_netio_close(in);
@@ -907,7 +936,9 @@ START_TEST (netio_telnet_gets_telnet_bare_dont_test) {
 END_TEST
 
 START_TEST (netio_telnet_gets_telnet_ip_test) {
-  char buf[256], *cmd, *res;
+    _TPtr<char> buf = string_tainted_malloc(256);
+        _TPtr<char> res = NULL;
+        char *cmd;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
   int len, xerrno;
@@ -932,7 +963,7 @@ START_TEST (netio_telnet_gets_telnet_ip_test) {
 
   ck_assert_msg(res != NULL, "Failed to get string from stream: (%d) %s",
     xerrno, strerror(xerrno));
-  ck_assert_msg(strcmp(buf, cmd) == 0, "Expected string '%s', got '%s'", cmd,
+  ck_assert_msg(t_strcmp(buf, cmd) == 0, "Expected string '%s', got '%s'", cmd,
     buf);
 
   pr_netio_close(in);
@@ -941,7 +972,9 @@ START_TEST (netio_telnet_gets_telnet_ip_test) {
 END_TEST
 
 START_TEST (netio_telnet_gets_telnet_bare_ip_test) {
-  char buf[256], *cmd, *res;
+    _TPtr<char> buf = string_tainted_malloc(256);
+        _TPtr<char> res = NULL;
+        char *cmd;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
   int len, xerrno;
@@ -965,11 +998,11 @@ START_TEST (netio_telnet_gets_telnet_bare_ip_test) {
 
   ck_assert_msg(res != NULL, "Failed to get string from stream: (%d) %s",
     xerrno, strerror(xerrno));
-  ck_assert_msg(strncmp(buf, cmd, 7) == 0, "Expected string '%*s', got '%*s'",
+  ck_assert_msg(t_strncmp(buf, cmd, 7) == 0, "Expected string '%*s', got '%*s'",
     7, cmd, 7, buf);
   ck_assert_msg(buf[7] == (char) TELNET_IP, "Expected IP at index 7, got %d",
     buf[7]);
-  ck_assert_msg(strcmp(buf + 8, cmd + 7) == 0, "Expected string '%s', got '%s'",
+  ck_assert_msg(t_strcmp(buf + 8, cmd + 7) == 0, "Expected string '%s', got '%s'",
     cmd + 7, buf + 8);
 
   pr_netio_close(in);
@@ -978,7 +1011,9 @@ START_TEST (netio_telnet_gets_telnet_bare_ip_test) {
 END_TEST
 
 START_TEST (netio_telnet_gets_telnet_dm_test) {
-  char buf[256], *cmd, *res;
+    _TPtr<char> buf = string_tainted_malloc(256);
+        _TPtr<char> res = NULL;
+        char *cmd;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
   int len, xerrno;
@@ -1003,7 +1038,7 @@ START_TEST (netio_telnet_gets_telnet_dm_test) {
 
   ck_assert_msg(res != NULL, "Failed to get string from stream: (%d) %s",
     xerrno, strerror(xerrno));
-  ck_assert_msg(strcmp(buf, cmd) == 0, "Expected string '%s', got '%s'", cmd,
+  ck_assert_msg(t_strcmp(buf, cmd) == 0, "Expected string '%s', got '%s'", cmd,
     buf);
 
   pr_netio_close(in);
@@ -1012,7 +1047,9 @@ START_TEST (netio_telnet_gets_telnet_dm_test) {
 END_TEST
 
 START_TEST (netio_telnet_gets_telnet_bare_dm_test) {
-  char buf[256], *cmd, *res;
+    _TPtr<char> buf = string_tainted_malloc(256);
+        _TPtr<char> res = NULL;
+        char *cmd;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
   int len, xerrno;
@@ -1036,11 +1073,11 @@ START_TEST (netio_telnet_gets_telnet_bare_dm_test) {
 
   ck_assert_msg(res != NULL, "Failed to get string from stream: (%d) %s",
     xerrno, strerror(xerrno));
-  ck_assert_msg(strncmp(buf, cmd, 7) == 0, "Expected string '%*s', got '%*s'",
+  ck_assert_msg(t_strncmp(buf, cmd, 7) == 0, "Expected string '%*s', got '%*s'",
     7, cmd, 7, buf);
   ck_assert_msg(buf[7] == (char) TELNET_DM, "Expected DM at index 7, got %d",
     buf[7]);
-  ck_assert_msg(strcmp(buf + 8, cmd + 7) == 0, "Expected string '%s', got '%s'",
+  ck_assert_msg(t_strcmp(buf + 8, cmd + 7) == 0, "Expected string '%s', got '%s'",
     cmd + 7, buf + 8);
 
   pr_netio_close(in);
@@ -1049,7 +1086,9 @@ START_TEST (netio_telnet_gets_telnet_bare_dm_test) {
 END_TEST
 
 START_TEST (netio_telnet_gets_telnet_single_iac_test) {
-  char buf[256], *cmd, *res;
+    _TPtr<char> buf = string_tainted_malloc(256);
+        _TPtr<char> res = NULL;
+        char *cmd;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
   int len, xerrno;
@@ -1073,11 +1112,11 @@ START_TEST (netio_telnet_gets_telnet_single_iac_test) {
 
   ck_assert_msg(res != NULL, "Failed to get string from stream: (%d) %s",
     xerrno, strerror(xerrno));
-  ck_assert_msg(strncmp(buf, cmd, 7) == 0, "Expected string '%*s', got '%*s'",
+  ck_assert_msg(t_strncmp(buf, cmd, 7) == 0, "Expected string '%*s', got '%*s'",
     7, cmd, 7, buf);
   ck_assert_msg(buf[7] == (char) TELNET_IAC, "Expected IAC at index 7, got %d",
     buf[7]);
-  ck_assert_msg(strcmp(buf + 8, cmd + 7) == 0, "Expected string '%s', got '%s'",
+  ck_assert_msg(t_strcmp(buf + 8, cmd + 7) == 0, "Expected string '%s', got '%s'",
     cmd + 7, buf + 8);
 
   pr_netio_close(in);
@@ -1086,7 +1125,10 @@ START_TEST (netio_telnet_gets_telnet_single_iac_test) {
 END_TEST
 
 START_TEST (netio_telnet_gets_bug3521_test) {
-  char buf[10], *res, telnet_opt;
+    _TPtr<char> buf = string_tainted_malloc(256);
+        _TPtr<char> res = NULL;
+        char *cmd;
+  char telnet_opt;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
   int len, xerrno;
@@ -1118,7 +1160,9 @@ START_TEST (netio_telnet_gets_bug3521_test) {
 END_TEST
 
 START_TEST (netio_telnet_gets_bug3697_test) {
-  char buf[256], *cmd, *res;
+    _TPtr<char> buf = string_tainted_malloc(256);
+        _TPtr<char> res = NULL;
+        char *cmd;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
   int len, xerrno;
@@ -1143,11 +1187,11 @@ START_TEST (netio_telnet_gets_bug3697_test) {
 
   ck_assert_msg(res != NULL, "Failed to get string from stream: (%d) %s",
     xerrno, strerror(xerrno));
-  ck_assert_msg(strncmp(buf, cmd, 7) == 0, "Expected string '%*s', got '%*s'",
+  ck_assert_msg(t_strncmp(buf, cmd, 7) == 0, "Expected string '%*s', got '%*s'",
     7, cmd, 7, buf);
   ck_assert_msg(buf[7] == (char) TELNET_IAC, "Expected IAC at index 7, got %d",
     buf[7]);
-  ck_assert_msg(strcmp(buf + 8, cmd + 7) == 0, "Expected string '%s', got '%s'",
+  ck_assert_msg(t_strcmp(buf + 8, cmd + 7) == 0, "Expected string '%s', got '%s'",
     cmd + 7, buf + 8);
 
   pr_netio_close(in);
@@ -1156,7 +1200,9 @@ START_TEST (netio_telnet_gets_bug3697_test) {
 END_TEST
 
 START_TEST (netio_telnet_gets_eof_test) {
-  char buf[256], *cmd, *res;
+    _TPtr<char> buf = string_tainted_malloc(256);
+        _TPtr<char> res = NULL;
+        char *cmd;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
   int len, xerrno;
@@ -1185,7 +1231,7 @@ START_TEST (netio_telnet_gets_eof_test) {
 
   ck_assert_msg(res != NULL, "Failed to get string from stream: (%d) %s",
     xerrno, strerror(xerrno));
-  ck_assert_msg(strcmp(buf, cmd) == 0, "Expected string '%s', got '%s'", cmd,
+  ck_assert_msg(t_strcmp(buf, cmd) == 0, "Expected string '%s', got '%s'", cmd,
     buf);
 
   pr_netio_close(in);
@@ -1194,8 +1240,9 @@ START_TEST (netio_telnet_gets_eof_test) {
 END_TEST
 
 START_TEST (netio_telnet_gets2_single_line_test) {
+    _TPtr<char> buf = string_tainted_malloc(256);
+        char *cmd;
   int res;
-  char buf[256], *cmd;
   size_t cmd_len;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
@@ -1220,7 +1267,7 @@ START_TEST (netio_telnet_gets2_single_line_test) {
 
   ck_assert_msg(res > 0, "Failed to get string from stream: (%d) %s",
     xerrno, strerror(xerrno));
-  ck_assert_msg(strcmp(buf, cmd) == 0, "Expected string '%s', got '%s'", cmd,
+  ck_assert_msg(t_strcmp(buf, cmd) == 0, "Expected string '%s', got '%s'", cmd,
     buf);
 
   ck_assert_msg((size_t) res == cmd_len, "Expected length %lu, got %d",
@@ -1236,7 +1283,8 @@ END_TEST
 
 START_TEST (netio_telnet_gets2_single_line_crnul_test) {
   int res;
-  char buf[256], *cmd;
+  _TPtr<char> buf = string_tainted_malloc(256);
+  char *cmd;
   size_t cmd_len;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
@@ -1262,7 +1310,7 @@ START_TEST (netio_telnet_gets2_single_line_crnul_test) {
 
   ck_assert_msg(res > 0, "Failed to get string from stream: (%d) %s",
     xerrno, strerror(xerrno));
-  ck_assert_msg(strcmp(buf, cmd) == 0, "Expected string '%s', got '%s'", cmd,
+  ck_assert_msg(t_strcmp(buf, cmd) == 0, "Expected string '%s', got '%s'", cmd,
     buf);
 
   ck_assert_msg((size_t) res == cmd_len, "Expected length %lu, got %d",
@@ -1278,7 +1326,8 @@ END_TEST
 
 START_TEST (netio_telnet_gets2_single_line_lf_test) {
   int res;
-  char buf[256], *cmd;
+  _TPtr<char> buf = string_tainted_malloc(256);
+  char *cmd;
   size_t cmd_len;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
@@ -1303,7 +1352,7 @@ START_TEST (netio_telnet_gets2_single_line_lf_test) {
 
   ck_assert_msg(res > 0, "Failed to get string from stream: (%d) %s",
     xerrno, strerror(xerrno));
-  ck_assert_msg(strcmp(buf, cmd) == 0, "Expected string '%s', got '%s'", cmd,
+  ck_assert_msg(t_strcmp(buf, cmd) == 0, "Expected string '%s', got '%s'", cmd,
     buf);
 
   ck_assert_msg((size_t) res == cmd_len, "Expected length %lu, got %d",

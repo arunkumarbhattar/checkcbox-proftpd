@@ -1672,9 +1672,9 @@ char *pr_netio_gets(char *buf, size_t buflen, pr_netio_stream_t *nstrm) {
 
 static int telnet_mode = 0;
 
-int pr_netio_telnet_gets2(char *buf, size_t bufsz,
+int pr_netio_telnet_gets2(_TPtr<char> buf, size_t bufsz,
     pr_netio_stream_t *in_nstrm, pr_netio_stream_t *out_nstrm) {
-  char *bp = buf;
+  _TPtr<char> bp = buf;
   unsigned char cp;
   int toread, handle_iac = TRUE, saw_newline = FALSE;
   pr_buffer_t *pbuf = NULL;
@@ -1881,10 +1881,16 @@ int pr_netio_telnet_gets2(char *buf, size_t bufsz,
   return (bufsz - buflen - 1);
 }
 
-char *pr_netio_telnet_gets(char *buf, size_t bufsz,
+//Multiple stack-based buffer overflows in the pr_netio_telnet_gets function in netio.c in
+//ProFTPD before 1.3.3c allow remote attackers to execute arbitrary code via vectors involving a TELNET IAC
+//escape character to a (1) FTP or (2) FTPS server.
+_TPtr<char> pr_netio_telnet_gets(_TPtr<char> buf, size_t bufsz,
     pr_netio_stream_t *in_nstrm, pr_netio_stream_t *out_nstrm) {
   int res;
-
+  if (buf!= NULL)
+  {
+      t_printf("Received buffer is %s", buf);
+  }
   res = pr_netio_telnet_gets2(buf, bufsz, in_nstrm, out_nstrm);
   if (res < 0) {
     return NULL;
