@@ -17774,7 +17774,7 @@ LIBS=$ac_check_lib_save_LIBS
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_check_tcase_create" >&5
 $as_echo "$ac_cv_lib_check_tcase_create" >&6; }
-if test "x$ac_cv_lib_check_tcase_create" = xyes; then :
+if test x"$ac_cv_lib_check_tcase_create" = xyes; then :
 
 $as_echo "#define HAVE_LIBCHECK 1" >>confdefs.h
 
