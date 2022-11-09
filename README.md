@@ -93,3 +93,16 @@ If you don't understand the documentation, please tell us, so we can explain it
 better.  The general idea is: if you need to ask for help, then something needs
 to be fixed so you (and others) don't need to ask for help.  Asking questions
 helps us to know what needs to be documented, described, and/or fixed.
+
+************************************************************************
+# CLION 
+echo $LD_LIBRARY_PATH
+./configure --enable-tests CC=/home/twinturbo/Desktop/ExtraSpace/CheckCBox_Compiler/llvm/cmake-build-debug/bin/clang --enable-build-type=debug --enable-sanitizers=address  LDFLAGS="-L/home/twinturbo/Desktop/ExtraSpace/checkcbox-proftpd/Checkcbox_LIBS/" LIBS="-ldl -lstdc++ -lSBX_CON_LIB -lisc_lib_final"
+If your Shared libraries (libisc_final.so) are not getting discovered -->
+follow these steps -->
+--> Add your library directory to the below folder (ubuntu) --> https://blog.andrewbeacock.com/2007/10/how-to-add-shared-libraries-to-linuxs.html
+(base) twinturbo@twinturbo-OptiPlex-3090:~/Desktop/ExtraSpace/checkcbox-proftpd$ vim /etc/ld.so.conf.d/myLocalLibs.conf
+(base) twinturbo@twinturbo-OptiPlex-3090:~/Desktop/ExtraSpace/checkcbox-proftpd$ sudo vim /etc/ld.so.conf.d/myLocalLibs.conf
+(base) twinturbo@twinturbo-OptiPlex-3090:~/Desktop/ExtraSpace/checkcbox-proftpd$ sudo ldconfig
+(base) twinturbo@twinturbo-OptiPlex-3090:~/Desktop/ExtraSpace/checkcbox-proftpd$ bash
+
