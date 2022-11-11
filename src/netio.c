@@ -25,7 +25,8 @@
 /* NetIO routines */
 
 #include "conf.h"
-
+#include <checkcbox_extensions.h>
+#include <stdlib_tainted.h>
 /* See RFC 854 for the definition of these Telnet values */
 
 /* Telnet "Interpret As Command" indicator */
