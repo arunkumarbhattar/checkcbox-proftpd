@@ -1889,10 +1889,6 @@ int pr_netio_telnet_gets2(_TPtr<char> buf, size_t bufsz,
 _TPtr<char> pr_netio_telnet_gets(_TPtr<char> buf, size_t bufsz,
     pr_netio_stream_t *in_nstrm, pr_netio_stream_t *out_nstrm) {
   int res;
-  if (buf!= NULL)
-  {
-      t_printf("Received buffer is %s", buf);
-  }
   res = pr_netio_telnet_gets2(buf, bufsz, in_nstrm, out_nstrm);
   if (res < 0) {
     return NULL;

@@ -27,6 +27,7 @@
 #include "tests.h"
 #include <checkcbox_extensions.h>
 #include <string_tainted.h>
+#include <time.h>
 /* See RFC 854 for the definition of these Telnet values */
 
 /* Telnet "Interpret As Command" indicator */
@@ -43,7 +44,7 @@ static int xfer_bufsz = -1;
 
 static int tmp_fd = -1;
 static const char *tmp_path = NULL;
-
+double globalTime = 0.0;
 static void test_cleanup(void) {
   (void) close(tmp_fd);
   tmp_fd = -1;
@@ -319,6 +320,9 @@ START_TEST (netio_buffer_alloc_test) {
 END_TEST
 
 START_TEST (netio_telnet_gets_args_test) {
+  clock_t start, end;
+  double cpu_time_used;
+  start = clock();
   _TPtr<char> buf = NULL;
   _TPtr<char> res = NULL;
   pr_netio_stream_t *in, *out;
@@ -350,10 +354,17 @@ START_TEST (netio_telnet_gets_args_test) {
 
   pr_netio_close(in);
   pr_netio_close(out);
+  end = clock();
+  cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+  globalTime += cpu_time_used;
+  printf("netio_telnet_gets_args_test --> TIME : %f\n", cpu_time_used);
 }
 END_TEST
 
 START_TEST (netio_telnet_gets_single_line_test) {
+  clock_t start, end;
+  double cpu_time_used;
+  start = clock();
   _TPtr<char> buf = string_tainted_malloc(256);
   _TPtr<char> res = NULL;
   char *cmd;
@@ -387,12 +398,19 @@ START_TEST (netio_telnet_gets_single_line_test) {
 
   pr_netio_close(in);
   pr_netio_close(out);
+  end = clock();
+  cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+  globalTime += cpu_time_used;
+  printf("netio_telnet_gets_single_line_test --> TIME : %f\n", cpu_time_used);
 }
 END_TEST
 
 START_TEST (netio_telnet_gets_multi_line_test) {
+  clock_t start, end;
+  double cpu_time_used;
+  start = clock();
   _TPtr<char> buf = string_tainted_malloc(256);
-    _TPtr<char> res = NULL;
+  _TPtr<char> res = NULL;
   char *cmd, *first_cmd, *second_cmd;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
@@ -437,13 +455,20 @@ START_TEST (netio_telnet_gets_multi_line_test) {
 
   pr_netio_close(in);
   pr_netio_close(out);
+  end = clock();
+  cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+  globalTime += cpu_time_used;
+  printf("netio_telnet_gets_multi_line_test --> TIME : %f\n", cpu_time_used);
 }
 END_TEST
 
 START_TEST (netio_telnet_gets_no_newline_test) {
-    _TPtr<char> buf = string_tainted_malloc(8);
-    _TPtr<char> res = NULL;
-    char *cmd;
+  clock_t start, end;
+  double cpu_time_used;
+  start = clock();
+  _TPtr<char> buf = string_tainted_malloc(8);
+  _TPtr<char> res = NULL;
+  char *cmd;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
   int len, xerrno;
@@ -470,13 +495,20 @@ START_TEST (netio_telnet_gets_no_newline_test) {
 
   pr_netio_close(in);
   pr_netio_close(out);
+  end = clock();
+  cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+  globalTime += cpu_time_used;
+  printf("netio_telnet_gets_no_newline_test --> TIME : %f\n", cpu_time_used);
 }
 END_TEST
 
 START_TEST (netio_telnet_gets_telnet_will_test) {
+  clock_t start, end;
+  double cpu_time_used;
+  start = clock();
   _TPtr<char> buf = string_tainted_malloc(256);
-    _TPtr<char> res = NULL;
-    char *cmd, telnet_opt;
+  _TPtr<char> res = NULL;
+  char *cmd, telnet_opt;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
   int len, out_fd, xerrno;
@@ -528,13 +560,20 @@ START_TEST (netio_telnet_gets_telnet_will_test) {
     telnet_opt, buf[2]);
 
   test_cleanup();
+  end = clock();
+  cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+  globalTime += cpu_time_used;
+  printf("netio_telnet_gets_telnet_will_test --> TIME : %f\n", cpu_time_used);
 }
 END_TEST
 
 START_TEST (netio_telnet_gets_telnet_bare_will_test) {
-    _TPtr<char> buf = string_tainted_malloc(256);
-        _TPtr<char> res = NULL;
-        char *cmd, telnet_opt;
+  clock_t start, end;
+  double cpu_time_used;
+  start = clock();
+  _TPtr<char> buf = string_tainted_malloc(256);
+  _TPtr<char> res = NULL;
+  char *cmd, telnet_opt;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
   int len, xerrno;
@@ -571,13 +610,20 @@ START_TEST (netio_telnet_gets_telnet_bare_will_test) {
 
   pr_netio_close(in);
   pr_netio_close(out);
+  end = clock();
+  cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+  globalTime += cpu_time_used;
+  printf("netio_telnet_gets_telnet_bare_will_test --> TIME : %f\n", cpu_time_used);
 }
 END_TEST
 
 START_TEST (netio_telnet_gets_telnet_will_multi_read_test) {
-    _TPtr<char> buf = string_tainted_malloc(256);
-        _TPtr<char> res = NULL;
-        char *cmd, telnet_opt;
+  clock_t start, end;
+  double cpu_time_used;
+  start = clock();
+  _TPtr<char> buf = string_tainted_malloc(256);
+  _TPtr<char> res = NULL;
+  char *cmd, telnet_opt;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
   int len, out_fd, xerrno;
@@ -647,13 +693,20 @@ START_TEST (netio_telnet_gets_telnet_will_multi_read_test) {
     telnet_opt, buf[2]);
 
   test_cleanup();
+  end = clock();
+  cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+  globalTime += cpu_time_used;
+  printf("netio_telnet_gets_telnet_will_multi_read_test --> TIME : %f\n", cpu_time_used);
 }
 END_TEST
 
 START_TEST (netio_telnet_gets_telnet_wont_test) {
-    _TPtr<char> buf = string_tainted_malloc(256);
-        _TPtr<char> res = NULL;
-        char *cmd, telnet_opt;
+  clock_t start, end;
+  double cpu_time_used;
+  start = clock();
+  _TPtr<char> buf = string_tainted_malloc(256);
+  _TPtr<char> res = NULL;
+  char *cmd, telnet_opt;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
   int len, out_fd, xerrno;
@@ -705,13 +758,20 @@ START_TEST (netio_telnet_gets_telnet_wont_test) {
     telnet_opt, buf[2]);
 
   test_cleanup();
+  end = clock();
+  cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+  globalTime += cpu_time_used;
+  printf("netio_telnet_gets_telnet_wont_test --> TIME : %f\n", cpu_time_used);
 }
 END_TEST
 
 START_TEST (netio_telnet_gets_telnet_bare_wont_test) {
-    _TPtr<char> buf = string_tainted_malloc(256);
-        _TPtr<char> res = NULL;
-        char *cmd, telnet_opt;
+  clock_t start, end;
+  double cpu_time_used;
+  start = clock();
+  _TPtr<char> buf = string_tainted_malloc(256);
+  _TPtr<char> res = NULL;
+  char *cmd, telnet_opt;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
   int len, xerrno;
@@ -748,13 +808,20 @@ START_TEST (netio_telnet_gets_telnet_bare_wont_test) {
 
   pr_netio_close(in);
   pr_netio_close(out);
+  end = clock();
+  cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+  globalTime += cpu_time_used;
+  printf("netio_telnet_gets_telnet_bare_wont_test --> TIME : %f\n", cpu_time_used);
 }
 END_TEST
 
 START_TEST (netio_telnet_gets_telnet_do_test) {
-    _TPtr<char> buf = string_tainted_malloc(256);
-        _TPtr<char> res = NULL;
-        char *cmd, telnet_opt;
+  clock_t start, end;
+  double cpu_time_used;
+  start = clock();
+  _TPtr<char> buf = string_tainted_malloc(256);
+  _TPtr<char> res = NULL;
+  char *cmd, telnet_opt;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
   int len, out_fd, xerrno;
@@ -806,13 +873,20 @@ START_TEST (netio_telnet_gets_telnet_do_test) {
     telnet_opt, buf[2]);
 
   test_cleanup();
+  end = clock();
+  cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+  globalTime += cpu_time_used;
+  printf("netio_telnet_gets_telnet_do_test --> TIME : %f\n", cpu_time_used);
 }
 END_TEST
 
 START_TEST (netio_telnet_gets_telnet_bare_do_test) {
-    _TPtr<char> buf = string_tainted_malloc(256);
-        _TPtr<char> res = NULL;
-        char *cmd, telnet_opt;
+  clock_t start, end;
+  double cpu_time_used;
+  start = clock();
+  _TPtr<char> buf = string_tainted_malloc(256);
+  _TPtr<char> res = NULL;
+  char *cmd, telnet_opt;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
   int len, xerrno;
@@ -849,13 +923,20 @@ START_TEST (netio_telnet_gets_telnet_bare_do_test) {
 
   pr_netio_close(in);
   pr_netio_close(out);
+  end = clock();
+  cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+  globalTime += cpu_time_used;
+  printf("netio_telnet_gets_telnet_bare_do_test --> TIME : %f\n", cpu_time_used);
 }
 END_TEST
 
 START_TEST (netio_telnet_gets_telnet_dont_test) {
-    _TPtr<char> buf = string_tainted_malloc(256);
-        _TPtr<char> res = NULL;
-        char *cmd, telnet_opt;
+  clock_t start, end;
+  double cpu_time_used;
+  start = clock();
+  _TPtr<char> buf = string_tainted_malloc(256);
+  _TPtr<char> res = NULL;
+  char *cmd, telnet_opt;
   pr_netio_stream_t *in, *out;
   pr_buffer_t *pbuf;
   int len, out_fd, xerrno;
@@ -907,10 +988,17 @@ START_TEST (netio_telnet_gets_telnet_dont_test) {
     telnet_opt, buf[2]);
 
   test_cleanup();
+    end = clock();
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    globalTime += cpu_time_used;
+    printf("netio_telnet_gets_telnet_dont_test --> TIME : %f\n", cpu_time_used);
 }
 END_TEST
 
 START_TEST (netio_telnet_gets_telnet_bare_dont_test) {
+    clock_t start, end;
+    double cpu_time_used;
+    start = clock();
     _TPtr<char> buf = string_tainted_malloc(256);
         _TPtr<char> res = NULL;
         char *cmd, telnet_opt;
@@ -950,10 +1038,17 @@ START_TEST (netio_telnet_gets_telnet_bare_dont_test) {
 
   pr_netio_close(in);
   pr_netio_close(out);
+    end = clock();
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    globalTime += cpu_time_used;
+    printf("netio_telnet_gets_telnet_bare_dont_test --> TIME : %f\n", cpu_time_used);
 }
 END_TEST
 
 START_TEST (netio_telnet_gets_telnet_ip_test) {
+    clock_t start, end;
+    double cpu_time_used;
+    start = clock();
     _TPtr<char> buf = string_tainted_malloc(256);
         _TPtr<char> res = NULL;
         char *cmd;
@@ -986,10 +1081,17 @@ START_TEST (netio_telnet_gets_telnet_ip_test) {
 
   pr_netio_close(in);
   pr_netio_close(out);
+    end = clock();
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    globalTime += cpu_time_used;
+    printf("netio_telnet_gets_telnet_ip_test --> TIME : %f\n", cpu_time_used);
 }
 END_TEST
 
 START_TEST (netio_telnet_gets_telnet_bare_ip_test) {
+    clock_t start, end;
+    double cpu_time_used;
+    start = clock();
     _TPtr<char> buf = string_tainted_malloc(256);
         _TPtr<char> res = NULL;
         char *cmd;
@@ -1025,10 +1127,17 @@ START_TEST (netio_telnet_gets_telnet_bare_ip_test) {
 
   pr_netio_close(in);
   pr_netio_close(out);
+    end = clock();
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    globalTime += cpu_time_used;
+    printf("netio_telnet_gets_telnet_bare_ip_test --> TIME : %f\n", cpu_time_used);
 }
 END_TEST
 
 START_TEST (netio_telnet_gets_telnet_dm_test) {
+    clock_t start, end;
+    double cpu_time_used;
+    start = clock();
     _TPtr<char> buf = string_tainted_malloc(256);
         _TPtr<char> res = NULL;
         char *cmd;
@@ -1061,10 +1170,17 @@ START_TEST (netio_telnet_gets_telnet_dm_test) {
 
   pr_netio_close(in);
   pr_netio_close(out);
+    end = clock();
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    globalTime += cpu_time_used;
+    printf("netio_telnet_gets_telnet_dm_test --> TIME : %f\n", cpu_time_used);
 }
 END_TEST
 
 START_TEST (netio_telnet_gets_telnet_bare_dm_test) {
+    clock_t start, end;
+    double cpu_time_used;
+    start = clock();
     _TPtr<char> buf = string_tainted_malloc(256);
         _TPtr<char> res = NULL;
         char *cmd;
@@ -1100,10 +1216,17 @@ START_TEST (netio_telnet_gets_telnet_bare_dm_test) {
 
   pr_netio_close(in);
   pr_netio_close(out);
+    end = clock();
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    globalTime += cpu_time_used;
+    printf("netio_telnet_gets_telnet_bare_dm_test --> TIME : %f\n", cpu_time_used);
 }
 END_TEST
 
 START_TEST (netio_telnet_gets_telnet_single_iac_test) {
+    clock_t start, end;
+    double cpu_time_used;
+    start = clock();
     _TPtr<char> buf = string_tainted_malloc(256);
         _TPtr<char> res = NULL;
         char *cmd;
@@ -1139,10 +1262,17 @@ START_TEST (netio_telnet_gets_telnet_single_iac_test) {
 
   pr_netio_close(in);
   pr_netio_close(out);
+    end = clock();
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    globalTime += cpu_time_used;
+    printf("netio_telnet_gets_telnet_single_iac_test --> TIME : %f\n", cpu_time_used);
 }
 END_TEST
 
 START_TEST (netio_telnet_gets_bug3521_test) {
+    clock_t start, end;
+    double cpu_time_used;
+    start = clock();
     _TPtr<char> buf = string_tainted_malloc(10);
         _TPtr<char> res = NULL;
         char *cmd;
@@ -1174,10 +1304,17 @@ START_TEST (netio_telnet_gets_bug3521_test) {
 
   pr_netio_close(in);
   pr_netio_close(out);
+    end = clock();
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    globalTime += cpu_time_used;
+    printf("netio_telnet_gets_bug3521_test --> TIME : %f\n", cpu_time_used);
 }
 END_TEST
 
 START_TEST (netio_telnet_gets_bug3697_test) {
+    clock_t start, end;
+    double cpu_time_used;
+    start = clock();
     _TPtr<char> buf = string_tainted_malloc(256);
         _TPtr<char> res = NULL;
         char *cmd;
@@ -1214,10 +1351,17 @@ START_TEST (netio_telnet_gets_bug3697_test) {
 
   pr_netio_close(in);
   pr_netio_close(out);
+    end = clock();
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    globalTime += cpu_time_used;
+    printf("netio_telnet_gets_bug3697_test --> TIME : %f\n", cpu_time_used);
 }
 END_TEST
 
 START_TEST (netio_telnet_gets_eof_test) {
+    clock_t start, end;
+    double cpu_time_used;
+    start = clock();
     _TPtr<char> buf = string_tainted_malloc(256);
         _TPtr<char> res = NULL;
         char *cmd;
@@ -1254,10 +1398,17 @@ START_TEST (netio_telnet_gets_eof_test) {
 
   pr_netio_close(in);
   pr_netio_close(out);
+    end = clock();
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    globalTime += cpu_time_used;
+    printf("netio_telnet_gets_eof_test --> TIME : %f\n", cpu_time_used);
 }
 END_TEST
 
 START_TEST (netio_telnet_gets2_single_line_test) {
+    clock_t start, end;
+    double cpu_time_used;
+    start = clock();
     _TPtr<char> buf = string_tainted_malloc(256);
         char *cmd;
   int res;
@@ -1296,10 +1447,17 @@ START_TEST (netio_telnet_gets2_single_line_test) {
 
   pr_netio_close(in);
   pr_netio_close(out);
+    end = clock();
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    globalTime += cpu_time_used;
+    printf("netio_telnet_gets2_single_line_test --> TIME : %f\n", cpu_time_used);
 }
 END_TEST
 
 START_TEST (netio_telnet_gets2_single_line_crnul_test) {
+    clock_t start, end;
+    double cpu_time_used;
+    start = clock();
   int res;
   _TPtr<char> buf = string_tainted_malloc(256);
   char *cmd;
@@ -1339,10 +1497,17 @@ START_TEST (netio_telnet_gets2_single_line_crnul_test) {
 
   pr_netio_close(in);
   pr_netio_close(out);
+    end = clock();
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    globalTime += cpu_time_used;
+    printf("netio_telnet_gets2_single_line_crnul_test --> TIME : %f\n", cpu_time_used);
 }
 END_TEST
 
 START_TEST (netio_telnet_gets2_single_line_lf_test) {
+    clock_t start, end;
+    double cpu_time_used;
+    start = clock();
   int res;
   _TPtr<char> buf = string_tainted_malloc(256);
   char *cmd;
@@ -1381,6 +1546,11 @@ START_TEST (netio_telnet_gets2_single_line_lf_test) {
 
   pr_netio_close(in);
   pr_netio_close(out);
+    end = clock();
+    cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+    globalTime += cpu_time_used;
+    printf("netio_telnet_gets2_single_line_lf_test --> TIME : %f\n", cpu_time_used);
+    printf("Total time taken --> %f\n", globalTime);
 }
 END_TEST
 

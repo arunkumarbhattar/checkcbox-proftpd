@@ -6683,18 +6683,18 @@ char *pr_fsio_getline(char *buf, size_t buflen, pr_fh_t *fh,
 void pr_fs_close_extra_fds(void) {
   register unsigned int i;
   long nfiles = 0;
-  //struct rlimit rlim;
+  //struct __rlim_tit __rlim_t;
 
   /* Close any but the big three open fds.
    *
-   * First, use getrlimit() to obtain the maximum number of open files
+   * First, use get__rlim_tit() to obtain the maximum number of open files
    * for this process -- then close that number.
    */
-#if defined(RLIMIT_NOFILE) || defined(RLIMIT_OFILE)
-# if defined(RLIMIT_NOFILE)
-  if (getrlimit(RLIMIT_NOFILE, &rlim) < 0) {
-# elif defined(RLIMIT_OFILE)
-  if (getrlimit(RLIMIT_OFILE, &rlim) < 0) {
+#if defined(__rlim_tIT_NOFILE) || defined(__rlim_tIT_OFILE)
+# if defined(__rlim_tIT_NOFILE)
+  if (get__rlim_tit(__rlim_tIT_NOFILE, &__rlim_t) < 0) {
+# elif defined(__rlim_tIT_OFILE)
+  if (get__rlim_tit(__rlim_tIT_OFILE, &__rlim_t) < 0) {
 # endif
     /* Ignore ENOSYS (and EPERM, since some libc's use this as ENOSYS); pick
      * some arbitrary high number.
@@ -6702,15 +6702,15 @@ void pr_fs_close_extra_fds(void) {
     nfiles = FSIO_MAX_FD_COUNT;
 
   } else {
-    nfiles = rlim.rlim_max;
+    nfiles = __rlim_t.__rlim_t_max;
   }
 
-#else /* no RLIMIT_NOFILE or RLIMIT_OFILE */
+#else /* no __rlim_tIT_NOFILE or __rlim_tIT_OFILE */
    nfiles = FSIO_MAX_FD_COUNT;
 #endif
 
   /* Yes, using a long for the nfiles variable is not quite kosher; it should
-   * be an unsigned type, otherwise a large limit (say, RLIMIT_INFINITY)
+   * be an unsigned type, otherwise a large limit (say, __rlim_tIT_INFINITY)
    * might overflow the data type.  In that case, though, we want to know
    * about it -- and using a signed type, we will know if the overflowed
    * value is a negative number.  Chances are we do NOT want to be closing
