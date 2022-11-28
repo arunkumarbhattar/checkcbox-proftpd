@@ -25,7 +25,7 @@
 /* Timers API tests */
 
 #include "tests.h"
-
+#include <unistd.h>
 static pool *p = NULL;
 
 static int repeat_cb = FALSE;

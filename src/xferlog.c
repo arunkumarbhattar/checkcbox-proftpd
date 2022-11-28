@@ -25,7 +25,7 @@
 /* ProFTPD xferlog(5) logging support. */
 
 #include "conf.h"
-
+#include <unistd.h>
 #define LOGBUFFER_SIZE	2048
 
 static int xferlogfd = -1;

@@ -23,7 +23,8 @@
  */
 
 #include "conf.h"
-
+#include <unistd.h>
+#include <sys/types.h>
 /* This next function logs an entry to wtmp, it MUST be called as root BEFORE
  * a chroot occurs.  Note: This has some portability ifdefs in it.  They
  * should work, but I haven't been able to test them.

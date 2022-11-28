@@ -23,10 +23,10 @@
  */
 
 /* Signal handling. */
-
+#include <sys/wait.h>
 #include "conf.h"
 #include "privs.h"
-
+#include <unistd.h>
 #ifdef HAVE_EXECINFO_H
 # include <execinfo.h>
 #endif

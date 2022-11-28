@@ -34,7 +34,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <time.h>
-
+#include <signal.h>
 #if defined(PR_USE_NLS) && defined(HAVE_LOCALE_H)
 # include <locale.h>
 #endif

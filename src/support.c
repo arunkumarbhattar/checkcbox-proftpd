@@ -29,7 +29,7 @@
  */
 
 #include "conf.h"
-
+#include <unistd.h>
 #ifdef PR_USE_OPENSSL
 # include <openssl/crypto.h>
 #endif /* PR_USE_OPENSSL */

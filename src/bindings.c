@@ -25,7 +25,7 @@
 /* Routines to work with ProFTPD bindings. */
 
 #include "conf.h"
-
+#include <unistd.h>
 /* From src/dirtree.c */
 extern xaset_t *server_list;
 extern server_rec *main_server;

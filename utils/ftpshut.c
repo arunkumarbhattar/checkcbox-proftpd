@@ -28,7 +28,7 @@
  */
 
 #include "conf.h"
-
+#include <unistd.h>
 static void show_usage(char *progname) {
   printf("usage: %s [ -R ] [ -l min ] [ -d min ] time "
     " [ warning-message ... ]\n", progname);

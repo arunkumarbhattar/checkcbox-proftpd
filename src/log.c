@@ -27,7 +27,7 @@
 /* ProFTPD logging support. */
 
 #include "conf.h"
-
+#include <unistd.h>
 #ifdef HAVE_EXECINFO_H
 # include <execinfo.h>
 #endif

@@ -25,7 +25,7 @@
 /* Children management code */
 
 #include "conf.h"
-
+#include <unistd.h>
 static pool *child_pool = NULL;
 static xaset_t *child_list = NULL;
 static unsigned long child_listlen = 0;

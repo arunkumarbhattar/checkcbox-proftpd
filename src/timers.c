@@ -26,7 +26,7 @@
 /* Timer system, based on alarm() and SIGALRM. */
 
 #include "conf.h"
-
+#include <unistd.h>
 /* From src/main.c */
 extern volatile unsigned int recvd_signal_flags;
 

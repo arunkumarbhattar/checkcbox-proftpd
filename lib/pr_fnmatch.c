@@ -31,6 +31,7 @@
 #endif
 
 #include <config.h>
+#include <string.h>
 
 /* Make alloca work the best possible way.  */
 #ifdef __GNUC__

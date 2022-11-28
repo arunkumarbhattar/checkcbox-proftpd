@@ -26,7 +26,7 @@
 #include "logfmt.h"
 #include "json.h"
 #include "jot.h"
-
+#include <unistd.h>
 struct jot_filters_rec {
   pool *pool;
 

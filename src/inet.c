@@ -28,7 +28,7 @@
 
 #include "conf.h"
 #include "privs.h"
-
+#include <unistd.h>
 extern unsigned char is_master;
 extern server_rec *main_server;
 

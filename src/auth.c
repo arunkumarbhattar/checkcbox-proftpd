@@ -30,7 +30,7 @@
 #include "privs.h"
 #include "error.h"
 #include "openbsd-blowfish.h"
-
+#include <unistd.h>
 static pool *auth_pool = NULL;
 static size_t auth_max_passwd_len = PR_TUNABLE_PASSWORD_MAX;
 static pr_table_t *auth_tab = NULL, *uid_tab = NULL, *user_tab = NULL,

@@ -28,7 +28,7 @@
 
 #include "conf.h"
 #include "privs.h"
-
+#include <unistd.h>
 #ifdef HAVE_USERSEC_H
 # include <usersec.h>
 #endif

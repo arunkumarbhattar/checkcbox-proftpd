@@ -30,7 +30,8 @@
 #include "support.h"
 #include "session.h"
 #include "trace.h"
-
+#include <unistd.h>
+#include <string.h>
 #define PR_ERROR_BUFSZ		32
 
 struct err_rec {

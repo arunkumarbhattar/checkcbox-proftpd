@@ -26,7 +26,7 @@
 
 #include "conf.h"
 #include "privs.h"
-
+#include <unistd.h>
 /* From src/dirtree.c */
 extern char ServerType;
 

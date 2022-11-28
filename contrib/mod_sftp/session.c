@@ -24,7 +24,7 @@
 
 #include "mod_sftp.h"
 #include "session.h"
-
+#include <unistd.h>
 static unsigned char *session_id = NULL;
 static uint32_t session_idlen = 0;
 

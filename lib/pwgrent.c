@@ -23,7 +23,7 @@ Suite 500, Boston, MA 02110-1335, USA.  */
 
 #include "conf.h"
 #include "base.h"
-
+#include <string.h>
 /* From log.c/log.h */
 #define PR_LOG_ERR LOG_ERR
 extern void pr_log_pri(int, char *, ...);

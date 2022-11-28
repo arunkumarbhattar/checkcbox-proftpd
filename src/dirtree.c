@@ -27,7 +27,7 @@
 /* Read configuration file(s), and manage server/configuration structures. */
 
 #include "conf.h"
-
+#include <unistd.h>
 #ifdef HAVE_ARPA_INET_H
 # include <arpa/inet.h>
 #endif

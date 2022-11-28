@@ -25,7 +25,7 @@
 /* Network address routines */
 
 #include "conf.h"
-
+#include <unistd.h>
 #if HAVE_NET_IF_H
 # include <net/if.h>
 #endif

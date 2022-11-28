@@ -26,7 +26,7 @@
 
 #include "conf.h"
 #include "privs.h"
-
+#include <unistd.h>
 static const char *pidfile_path = PR_PID_FILE_PATH;
 
 const char *pr_pidfile_get(void) {

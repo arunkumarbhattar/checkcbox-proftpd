@@ -28,7 +28,7 @@
  */
 
 #include "conf.h"
-
+#include <unistd.h>
 #if defined(SOLARIS2) || defined(IRIX6) || defined(SYSV5UNIXWARE7)
 # define HAVE_DEV_LOG_STREAMS 1
 #endif /* SOLARIS2 or IRIX6 or SYSV5UNIXWARE7 */

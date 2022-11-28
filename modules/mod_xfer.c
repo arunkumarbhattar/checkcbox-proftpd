@@ -29,7 +29,10 @@
 #include "conf.h"
 #include "privs.h"
 #include "error.h"
-
+#include <sys/stat.h>
+#include <sys/wait.h>
+#include <sys/resource.h>
+#include <unistd.h>
 #ifdef HAVE_SYS_SENDFILE_H
 # include <sys/sendfile.h>
 #endif

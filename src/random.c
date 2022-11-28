@@ -23,7 +23,7 @@
  */
 
 #include "conf.h"
-
+#include <unistd.h>
 /* Note: Make sure that we initialize the state for both random(3) and rand(3),
  * as modules/code may make use of either (or both) of them; see Issue #1396.
  */

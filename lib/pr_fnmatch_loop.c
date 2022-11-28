@@ -31,7 +31,7 @@
 #endif
 
 #include <config.h>
-
+void* mempcpy(void* dest, const void* src, size_t n);
 struct STRUCT
 {
   const CHAR *pattern;

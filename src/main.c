@@ -25,7 +25,7 @@
  */
 
 /* House initialization and main program loop */
-
+#include <unistd.h>
 #include "conf.h"
 #include <string_tainted.h>
 #include <stdlib_tainted.h>
@@ -570,7 +570,7 @@ int pr_cmd_read(cmd_rec **res) {
       flags |= PR_STR_FL_PRESERVE_WHITESPACE;
     }
 
-    cmd = make_ftp_cmd(session.pool, (char*)TaintedToCheckedStrAdaptor(ptr), cmd_buflen, flags);
+    cmd = make_ftp_cmd(session.pool, (char*)TaintedToCheckedStrAdaptor(ptr, t_strlen(ptr)), cmd_buflen, flags);
     if (cmd != NULL) {
       *res = cmd;
 

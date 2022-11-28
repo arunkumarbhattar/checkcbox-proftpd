@@ -30,7 +30,7 @@
 #include "privs.h"
 #include "logfmt.h"
 #include "jot.h"
-
+#include <unistd.h>
 #define MOD_LOG_VERSION				"mod_log/1.0"
 
 module log_module;

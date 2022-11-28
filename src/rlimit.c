@@ -25,8 +25,8 @@
 /* Resource limits implementation */
 
 #include "conf.h"
-
-static int get_rlimit(int resource, rlim_t *current, rlim_t *max) {
+#include <sys/resource.h>
+static int get_rlimit(int resource, __rlim_t *current, __rlim_t *max) {
   struct rlimit rlim;
   int res;
 
@@ -49,7 +49,7 @@ static int get_rlimit(int resource, rlim_t *current, rlim_t *max) {
   if (current != NULL) {
     *current = rlim.rlim_cur;
   }
-  
+
   if (max != NULL) {
     *max = rlim.rlim_max;
   }
@@ -57,7 +57,7 @@ static int get_rlimit(int resource, rlim_t *current, rlim_t *max) {
   return 0;
 }
 
-static int set_rlimit(int resource, rlim_t current, rlim_t max) {
+static int set_rlimit(int resource, __rlim_t current, __rlim_t max) {
   struct rlimit rlim;
   int res;
 
@@ -68,7 +68,7 @@ static int set_rlimit(int resource, rlim_t current, rlim_t max) {
   return res;
 }
 
-int pr_rlimit_get_core(rlim_t *current, rlim_t *max) {
+int pr_rlimit_get_core(__rlim_t *current, __rlim_t *max) {
 #if defined(RLIMIT_CORE)
   return get_rlimit(RLIMIT_CORE, current, max);
 
@@ -78,7 +78,7 @@ int pr_rlimit_get_core(rlim_t *current, rlim_t *max) {
 #endif /* No RLIMIT_CORE */
 }
 
-int pr_rlimit_set_core(rlim_t current, rlim_t max) {
+int pr_rlimit_set_core(__rlim_t current, __rlim_t max) {
 #if defined(RLIMIT_CORE)
   return set_rlimit(RLIMIT_CORE, current, max);
 
@@ -88,7 +88,7 @@ int pr_rlimit_set_core(rlim_t current, rlim_t max) {
 #endif /* No RLIMIT_CORE */
 }
 
-int pr_rlimit_get_cpu(rlim_t *current, rlim_t *max) {
+int pr_rlimit_get_cpu(__rlim_t *current, __rlim_t *max) {
 #if defined(RLIMIT_CPU)
   return get_rlimit(RLIMIT_CPU, current, max);
 
@@ -98,7 +98,7 @@ int pr_rlimit_get_cpu(rlim_t *current, rlim_t *max) {
 #endif /* No RLIMIT_CPU */
 }
 
-int pr_rlimit_set_cpu(rlim_t current, rlim_t max) {
+int pr_rlimit_set_cpu(__rlim_t current, __rlim_t max) {
 #if defined(RLIMIT_CPU)
   return set_rlimit(RLIMIT_CPU, current, max);
 
@@ -108,7 +108,7 @@ int pr_rlimit_set_cpu(rlim_t current, rlim_t max) {
 #endif /* No RLIMIT_CPU */
 }
 
-int pr_rlimit_get_files(rlim_t *current, rlim_t *max) {
+int pr_rlimit_get_files(__rlim_t *current, __rlim_t *max) {
 #if defined(RLIMIT_NOFILE)
   return get_rlimit(RLIMIT_NOFILE, current, max);
 
@@ -121,7 +121,7 @@ int pr_rlimit_get_files(rlim_t *current, rlim_t *max) {
 #endif /* No RLIMIT_NOFILE or RLIMIT_OFILE */
 }
 
-int pr_rlimit_set_files(rlim_t current, rlim_t max) {
+int pr_rlimit_set_files(__rlim_t current, __rlim_t max) {
 #if defined(RLIMIT_NOFILE)
   return set_rlimit(RLIMIT_NOFILE, current, max);
 
@@ -134,7 +134,7 @@ int pr_rlimit_set_files(rlim_t current, rlim_t max) {
 #endif /* No RLIMIT_NOFILE or RLIMIT_OFILE */
 }
 
-int pr_rlimit_get_memory(rlim_t *current, rlim_t *max) {
+int pr_rlimit_get_memory(__rlim_t *current, __rlim_t *max) {
 #if defined(RLIMIT_AS)
   return get_rlimit(RLIMIT_AS, current, max);
 
@@ -150,7 +150,7 @@ int pr_rlimit_get_memory(rlim_t *current, rlim_t *max) {
 #endif /* No RLIMIT_AS, RLIMIT_DATA, or RLIMIT_VMEM. */
 }
 
-int pr_rlimit_set_memory(rlim_t current, rlim_t max) {
+int pr_rlimit_set_memory(__rlim_t current, __rlim_t max) {
 #if defined(RLIMIT_AS)
   return set_rlimit(RLIMIT_AS, current, max);
 
@@ -163,7 +163,7 @@ int pr_rlimit_set_memory(rlim_t current, rlim_t max) {
 #endif /* No RLIMIT_AS or RLIMIT_DATA */
 }
 
-int pr_rlimit_get_nproc(rlim_t *current, rlim_t *max) {
+int pr_rlimit_get_nproc(__rlim_t *current, __rlim_t *max) {
 #if defined(RLIMIT_NPROC)
   return get_rlimit(RLIMIT_NPROC, current, max);
 
@@ -173,7 +173,7 @@ int pr_rlimit_get_nproc(rlim_t *current, rlim_t *max) {
 #endif /* No RLIMIT_NPROC */
 }
 
-int pr_rlimit_set_nproc(rlim_t current, rlim_t max) {
+int pr_rlimit_set_nproc(__rlim_t current, __rlim_t max) {
 #if defined(RLIMIT_NPROC)
   return set_rlimit(RLIMIT_NPROC, current, max);
 

@@ -24,7 +24,7 @@
 
 #include "conf.h"
 #include "privs.h"
-
+#include <unistd.h>
 /* If proftpd was started up without root privs, then this is set to TRUE.
  * It is used to prevent spamming the logs with error messages about being
  * unable to switch privs.

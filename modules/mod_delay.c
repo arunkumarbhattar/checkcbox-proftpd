@@ -28,7 +28,7 @@
 
 #include "conf.h"
 #include "privs.h"
-
+#include <unistd.h>
 #define MOD_DELAY_VERSION		"mod_delay/0.8"
 
 /* Make sure the version of proftpd is as necessary. */

@@ -23,7 +23,7 @@
  */
 
 #include "conf.h"
-
+#include <unistd.h>
 /* From src/main.c */
 extern unsigned char is_master;
 

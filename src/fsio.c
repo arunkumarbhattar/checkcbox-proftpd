@@ -29,7 +29,7 @@
 #include "error.h"
 #include "conf.h"
 #include "privs.h"
-
+#include <unistd.h>
 #ifdef HAVE_SYS_STATVFS_H
 # include <sys/statvfs.h>
 #endif
@@ -6683,7 +6683,7 @@ char *pr_fsio_getline(char *buf, size_t buflen, pr_fh_t *fh,
 void pr_fs_close_extra_fds(void) {
   register unsigned int i;
   long nfiles = 0;
-  struct rlimit rlim;
+  //struct rlimit rlim;
 
   /* Close any but the big three open fds.
    *

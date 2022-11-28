@@ -48,7 +48,7 @@ module rlimit_module;
 #define DAEMON_SCOPE		3
 #define SESSION_SCOPE		4
 
-static int get_num_bytes(const char *nbytes_str, rlim_t *nbytes) {
+static int get_num_bytes(const char *nbytes_str, __rlim_t *nbytes) {
   unsigned long inb;
   char units, junk;
   int res;
@@ -133,7 +133,7 @@ MODRET set_rlimitchroot(cmd_rec *cmd) {
 MODRET set_rlimitcpu(cmd_rec *cmd) {
 #ifdef RLIMIT_CPU
   config_rec *c = NULL;
-  rlim_t current, max;
+  __rlim_t current, max;
 
   /* Make sure the directive has between 1 and 3 parameters */
   if (cmd->argc-1 < 1 ||
@@ -208,10 +208,10 @@ MODRET set_rlimitcpu(cmd_rec *cmd) {
 
     c = add_config_param(cmd->argv[0], 3, NULL, NULL, NULL);
     c->argv[0] = pstrdup(c->pool, cmd->argv[1]);
-    c->argv[1] = palloc(c->pool, sizeof(rlim_t));
-    *((rlim_t *) c->argv[1]) = current;
-    c->argv[2] = palloc(c->pool, sizeof(rlim_t));
-    *((rlim_t *) c->argv[2]) = max;
+    c->argv[1] = palloc(c->pool, sizeof(__rlim_t));
+    *((__rlim_t *) c->argv[1]) = current;
+    c->argv[2] = palloc(c->pool, sizeof(__rlim_t));
+    *((__rlim_t *) c->argv[2]) = max;
 
   /* Handle the older format, which will have a number as the first parameter.
    */
@@ -256,10 +256,10 @@ MODRET set_rlimitcpu(cmd_rec *cmd) {
     }
 
     c = add_config_param(cmd->argv[0], 2, NULL, NULL);
-    c->argv[0] = palloc(c->pool, sizeof(rlim_t));
-    *((rlim_t *) c->argv[0]) = current;
-    c->argv[1] = palloc(c->pool, sizeof(rlim_t));
-    *((rlim_t *) c->argv[1]) = max;
+    c->argv[0] = palloc(c->pool, sizeof(__rlim_t));
+    *((__rlim_t *) c->argv[0]) = current;
+    c->argv[1] = palloc(c->pool, sizeof(__rlim_t));
+    *((__rlim_t *) c->argv[1]) = max;
   }
 
   return PR_HANDLED(cmd);
@@ -272,7 +272,7 @@ MODRET set_rlimitcpu(cmd_rec *cmd) {
 MODRET set_rlimitmemory(cmd_rec *cmd) {
 #if defined(RLIMIT_AS) || defined(RLIMIT_DATA) || defined(RLIMIT_VMEM)
   config_rec *c = NULL;
-  rlim_t current, max;
+  __rlim_t current, max;
 
   /* Make sure the directive has between 1 and 3 parameters */
   if (cmd->argc-1 < 1 ||
@@ -336,10 +336,10 @@ MODRET set_rlimitmemory(cmd_rec *cmd) {
 
     c = add_config_param(cmd->argv[0], 3, NULL, NULL, NULL);
     c->argv[0] = pstrdup(c->pool, cmd->argv[1]);
-    c->argv[1] = palloc(c->pool, sizeof(rlim_t));
-    *((rlim_t *) c->argv[1]) = current;
-    c->argv[2] = palloc(c->pool, sizeof(rlim_t));
-    *((rlim_t *) c->argv[2]) = max;
+    c->argv[1] = palloc(c->pool, sizeof(__rlim_t));
+    *((__rlim_t *) c->argv[1]) = current;
+    c->argv[2] = palloc(c->pool, sizeof(__rlim_t));
+    *((__rlim_t *) c->argv[2]) = max;
 
   /* Handle the older format, which will have a number as the first
    * parameter.
@@ -373,10 +373,10 @@ MODRET set_rlimitmemory(cmd_rec *cmd) {
     }
 
     c = add_config_param(cmd->argv[0], 2, NULL, NULL);
-    c->argv[0] = palloc(c->pool, sizeof(rlim_t));
-    *((rlim_t *) c->argv[0]) = current;
-    c->argv[1] = palloc(c->pool, sizeof(rlim_t));
-    *((rlim_t *) c->argv[1]) = max;
+    c->argv[0] = palloc(c->pool, sizeof(__rlim_t));
+    *((__rlim_t *) c->argv[0]) = current;
+    c->argv[1] = palloc(c->pool, sizeof(__rlim_t));
+    *((__rlim_t *) c->argv[1]) = max;
   }
 
   return PR_HANDLED(cmd);
@@ -389,7 +389,7 @@ MODRET set_rlimitmemory(cmd_rec *cmd) {
 MODRET set_rlimitopenfiles(cmd_rec *cmd) {
 #if defined(RLIMIT_NOFILE) || defined(RLIMIT_OFILE)
   config_rec *c = NULL;
-  rlim_t current, max;
+  __rlim_t current, max;
 
   /* Make sure the directive has between 1 and 3 parameters */
   if (cmd->argc-1 < 1 ||
@@ -464,10 +464,10 @@ MODRET set_rlimitopenfiles(cmd_rec *cmd) {
 
     c = add_config_param(cmd->argv[0], 3, NULL, NULL, NULL);
     c->argv[0] = pstrdup(c->pool, cmd->argv[1]);
-    c->argv[1] = palloc(c->pool, sizeof(rlim_t));
-    *((rlim_t *) c->argv[1]) = current;
-    c->argv[2] = palloc(c->pool, sizeof(rlim_t));
-    *((rlim_t *) c->argv[2]) = max;
+    c->argv[1] = palloc(c->pool, sizeof(__rlim_t));
+    *((__rlim_t *) c->argv[1]) = current;
+    c->argv[2] = palloc(c->pool, sizeof(__rlim_t));
+    *((__rlim_t *) c->argv[2]) = max;
 
   /* Handle the older format, which will have a number as the first
    * parameter.
@@ -513,10 +513,10 @@ MODRET set_rlimitopenfiles(cmd_rec *cmd) {
     }
 
     c = add_config_param(cmd->argv[0], 2, NULL, NULL);
-    c->argv[0] = palloc(c->pool, sizeof(rlim_t));
-    *((rlim_t *) c->argv[0]) = current;
-    c->argv[1] = palloc(c->pool, sizeof(rlim_t));
-    *((rlim_t *) c->argv[1]) = max;
+    c->argv[0] = palloc(c->pool, sizeof(__rlim_t));
+    *((__rlim_t *) c->argv[0]) = current;
+    c->argv[1] = palloc(c->pool, sizeof(__rlim_t));
+    *((__rlim_t *) c->argv[1]) = max;
   }
 
   return PR_HANDLED(cmd);
@@ -542,7 +542,7 @@ MODRET rlimit_post_pass(cmd_rec *cmd) {
 }
 
 static int rlimit_set_core(int scope) {
-  rlim_t current, max;
+  __rlim_t current, max;
   int res, xerrno;
 
 #ifdef PR_DEVEL_COREDUMP
@@ -594,7 +594,7 @@ static int rlimit_set_cpu(int scope) {
   c = find_config(main_server->conf, CONF_PARAM, "RLimitCPU", FALSE);
   while (c != NULL) {
     int res, use_config = FALSE, xerrno;
-    rlim_t current, max;
+    __rlim_t current, max;
 
     pr_signals_handle();
 
@@ -620,12 +620,12 @@ static int rlimit_set_cpu(int scope) {
     }
 
     if (c->argc == 2) {
-      current = *((rlim_t *) c->argv[0]);
-      max = *((rlim_t *) c->argv[1]);
+      current = *((__rlim_t *) c->argv[0]);
+      max = *((__rlim_t *) c->argv[1]);
 
     } else {
-      current = *((rlim_t *) c->argv[1]);
-      max = *((rlim_t *) c->argv[2]);
+      current = *((__rlim_t *) c->argv[1]);
+      max = *((__rlim_t *) c->argv[2]);
     }
 
     PRIVS_ROOT
@@ -655,7 +655,7 @@ static int rlimit_set_files(int scope) {
   c = find_config(main_server->conf, CONF_PARAM, "RLimitOpenFiles", FALSE);
   while (c != NULL) {
     int res, use_config = FALSE, xerrno;
-    rlim_t current, max;
+    __rlim_t current, max;
 
     pr_signals_handle();
 
@@ -681,12 +681,12 @@ static int rlimit_set_files(int scope) {
     }
 
     if (c->argc == 2) {
-      current = *((rlim_t *) c->argv[0]);
-      max = *((rlim_t *) c->argv[1]);
+      current = *((__rlim_t *) c->argv[0]);
+      max = *((__rlim_t *) c->argv[1]);
 
     } else {
-      current = *((rlim_t *) c->argv[1]);
-      max = *((rlim_t *) c->argv[2]);
+      current = *((__rlim_t *) c->argv[1]);
+      max = *((__rlim_t *) c->argv[2]);
     }
 
     PRIVS_ROOT
@@ -716,7 +716,7 @@ static int rlimit_set_memory(int scope) {
   c = find_config(main_server->conf, CONF_PARAM, "RLimitMemory", FALSE);
   while (c != NULL) {
     int res, use_config = FALSE, xerrno;
-    rlim_t current, max;
+    __rlim_t current, max;
 
     pr_signals_handle();
 
@@ -742,12 +742,12 @@ static int rlimit_set_memory(int scope) {
     }
 
     if (c->argc == 2) {
-      current = *((rlim_t *) c->argv[0]);
-      max = *((rlim_t *) c->argv[1]);
+      current = *((__rlim_t *) c->argv[0]);
+      max = *((__rlim_t *) c->argv[1]);
 
     } else {
-      current = *((rlim_t *) c->argv[1]);
-      max = *((rlim_t *) c->argv[2]);
+      current = *((__rlim_t *) c->argv[1]);
+      max = *((__rlim_t *) c->argv[2]);
     }
 
     PRIVS_ROOT

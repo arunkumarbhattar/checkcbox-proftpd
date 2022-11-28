@@ -25,7 +25,7 @@
 
 #include "conf.h"
 #include "privs.h"
-
+#include <unistd.h>
 /* AIX has some rather stupid function prototype inconsistencies between
  * their crypt.h and stdlib.h's setkey() declarations.
  */

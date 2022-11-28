@@ -26,7 +26,8 @@
 
 #include "conf.h"
 #include "privs.h"
-
+#include <sys/stat.h>
+#include <unistd.h>
 #ifdef PR_USE_TRACE
 
 #define TRACE_BUFFER_SIZE		(PR_TUNABLE_BUFFER_SIZE * 8)
