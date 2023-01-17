@@ -25,7 +25,7 @@
 /* Resource limits implementation */
 
 #include "conf.h"
-#include <sys/resource.h>
+#include "/usr/include/x86_64-linux-gnu/sys/resource.h"
 static int get_rlimit(int resource, __rlim_t *current, __rlim_t *max) {
   struct rlimit rlim;
   int res;

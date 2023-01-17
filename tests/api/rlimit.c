@@ -43,7 +43,7 @@ static void tear_down(void) {
 
 START_TEST (rlimit_core_test) {
   int res;
-  rlim_t curr_rlim = 0, max_rlim = 0 ;
+  __rlim_t curr_rlim = 0, max_rlim = 0 ;
 
   res = pr_rlimit_get_core(NULL, NULL);
   ck_assert_msg(res == -1, "Failed to handle null arguments");
@@ -69,7 +69,7 @@ END_TEST
 
 START_TEST (rlimit_cpu_test) {
   int res;
-  rlim_t curr_rlim = 0, max_rlim = 0 ;
+  __rlim_t curr_rlim = 0, max_rlim = 0 ;
 
   res = pr_rlimit_get_cpu(NULL, NULL);
   ck_assert_msg(res == -1, "Failed to handle null arguments");
@@ -95,7 +95,7 @@ END_TEST
 
 START_TEST (rlimit_files_test) {
   int res;
-  rlim_t curr_rlim = 0, max_rlim = 0 ;
+  __rlim_t curr_rlim = 0, max_rlim = 0 ;
 
   res = pr_rlimit_get_files(NULL, NULL);
   ck_assert_msg(res == -1, "Failed to handle null arguments");
@@ -121,7 +121,7 @@ END_TEST
 
 START_TEST (rlimit_memory_test) {
   int res;
-  rlim_t curr_rlim = 0, max_rlim = 0 ;
+  __rlim_t curr_rlim = 0, max_rlim = 0 ;
 
   res = pr_rlimit_get_memory(NULL, NULL);
   ck_assert_msg(res == -1, "Failed to handle null arguments");
@@ -148,7 +148,7 @@ END_TEST
 #ifdef RLIMIT_NPROC
 START_TEST (rlimit_nproc_test) {
   int res;
-  rlim_t curr_rlim = 0, max_rlim = 0 ;
+  __rlim_t curr_rlim = 0, max_rlim = 0 ;
 
   res = pr_rlimit_get_nproc(NULL, NULL);
   ck_assert_msg(res == -1, "Failed to handle null arguments");

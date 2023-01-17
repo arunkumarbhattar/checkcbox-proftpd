@@ -1814,7 +1814,7 @@ int pr_error_explain_getpeername(pr_error_t *err, int fd, struct sockaddr *addr,
   return 0;
 }
 
-int pr_error_explain_getrlimit(pr_error_t *err, int resource,
+int _pr_error_explain_getrlimit(pr_error_t *err, int resource,
     struct rlimit *rlim) {
   const char *what = "getrlimit()", *explained = NULL;
   int xerrno = ENOSYS;
@@ -2503,7 +2503,7 @@ int pr_error_explain_setreuid(pr_error_t *err, uid_t ruid, uid_t euid) {
   return 0;
 }
 
-int pr_error_explain_setrlimit(pr_error_t *err, int resource,
+int _pr_error_explain_setrlimit(pr_error_t *err, int resource,
     const struct rlimit *rlim) {
   const char *what = "setrlimit()", *explained = NULL;
   int xerrno = ENOSYS;

@@ -2659,7 +2659,7 @@ START_TEST (error_explain_getrlimit_test) {
   module m;
   const char *name;
 
-  res = pr_error_explain_getrlimit(NULL, -1, NULL);
+  res = _pr_error_explain_getrlimit(NULL, -1, NULL);
   ck_assert_msg(res < 0, "Failed to handle null error");
   ck_assert_msg(errno == EINVAL, "Expected EINVAL (%d), got %s (%d)", EINVAL,
     strerror(errno), errno);
@@ -2668,7 +2668,7 @@ START_TEST (error_explain_getrlimit_test) {
   err = pr_error_create(p, xerrno);
   ck_assert_msg(err != NULL, "Failed to allocate error: %s", strerror(errno));
 
-  res = pr_error_explain_getrlimit(err, -1, NULL);
+  res = _pr_error_explain_getrlimit(err, -1, NULL);
   ck_assert_msg(res < 0, "Unexpectedly explained error");
   ck_assert_msg(errno == ENOSYS, "Expected ENOSYS (%d), got %s (%d)", ENOSYS,
     strerror(errno), errno);
@@ -2681,7 +2681,7 @@ START_TEST (error_explain_getrlimit_test) {
   ck_assert_msg(explainer != NULL, "Failed to register '%s' explainer: %s",
     name, strerror(errno));
 
-  res = pr_error_explain_getrlimit(err, -1, NULL);
+  res = _pr_error_explain_getrlimit(err, -1, NULL);
   ck_assert_msg(res < 0, "Unexpectedly explained error");
   ck_assert_msg(errno == ENOSYS, "Expected ENOSYS (%d), got %s (%d)", ENOSYS,
     strerror(errno), errno);
@@ -2689,13 +2689,13 @@ START_TEST (error_explain_getrlimit_test) {
   explainer->explain_getrlimit = test_explain_getrlimit;
   test_explain_return_eperm = TRUE;
 
-  res = pr_error_explain_getrlimit(err, -1, NULL);
+  res = _pr_error_explain_getrlimit(err, -1, NULL);
   ck_assert_msg(res < 0, "Unexpectedly explained error");
   ck_assert_msg(errno == EPERM, "Expected EPERM (%d), got %s (%d)", EPERM,
     strerror(errno), errno);
 
   test_explain_return_eperm = FALSE;
-  res = pr_error_explain_getrlimit(err, -1, NULL);
+  res = _pr_error_explain_getrlimit(err, -1, NULL);
   ck_assert_msg(res == 0, "Failed to explain error: %s", strerror(errno));
 
   res = pr_error_unregister_explainer(p, &m, name);
@@ -4376,7 +4376,7 @@ START_TEST (error_explain_setrlimit_test) {
   module m;
   const char *name;
 
-  res = pr_error_explain_setrlimit(NULL, -1, NULL);
+  res = _pr_error_explain_setrlimit(NULL, -1, NULL);
   ck_assert_msg(res < 0, "Failed to handle null error");
   ck_assert_msg(errno == EINVAL, "Expected EINVAL (%d), got %s (%d)", EINVAL,
     strerror(errno), errno);
@@ -4385,7 +4385,7 @@ START_TEST (error_explain_setrlimit_test) {
   err = pr_error_create(p, xerrno);
   ck_assert_msg(err != NULL, "Failed to allocate error: %s", strerror(errno));
 
-  res = pr_error_explain_setrlimit(err, -1, NULL);
+  res = _pr_error_explain_setrlimit(err, -1, NULL);
   ck_assert_msg(res < 0, "Unexpectedly explained error");
   ck_assert_msg(errno == ENOSYS, "Expected ENOSYS (%d), got %s (%d)", ENOSYS,
     strerror(errno), errno);
@@ -4398,7 +4398,7 @@ START_TEST (error_explain_setrlimit_test) {
   ck_assert_msg(explainer != NULL, "Failed to register '%s' explainer: %s",
     name, strerror(errno));
 
-  res = pr_error_explain_setrlimit(err, -1, NULL);
+  res = _pr_error_explain_setrlimit(err, -1, NULL);
   ck_assert_msg(res < 0, "Unexpectedly explained error");
   ck_assert_msg(errno == ENOSYS, "Expected ENOSYS (%d), got %s (%d)", ENOSYS,
     strerror(errno), errno);
@@ -4406,13 +4406,13 @@ START_TEST (error_explain_setrlimit_test) {
   explainer->explain_setrlimit = test_explain_setrlimit;
   test_explain_return_eperm = TRUE;
 
-  res = pr_error_explain_setrlimit(err, -1, NULL);
+  res = _pr_error_explain_setrlimit(err, -1, NULL);
   ck_assert_msg(res < 0, "Unexpectedly explained error");
   ck_assert_msg(errno == EPERM, "Expected EPERM (%d), got %s (%d)", EPERM,
     strerror(errno), errno);
 
   test_explain_return_eperm = FALSE;
-  res = pr_error_explain_setrlimit(err, -1, NULL);
+  res = _pr_error_explain_setrlimit(err, -1, NULL);
   ck_assert_msg(res == 0, "Failed to explain error: %s", strerror(errno));
 
   res = pr_error_unregister_explainer(p, &m, name);
