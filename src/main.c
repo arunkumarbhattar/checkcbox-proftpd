@@ -493,7 +493,14 @@ int pr_cmd_read(cmd_rec **res) {
   }
 
   if (cmd_buf == NULL) {
+#ifdef WASM_SBX
     cmd_buf = t_calloc(session.pool, cmd_bufsz + 1);
+#elif HEAP_SBX
+    cmd_buf = hoard_calloc(1, cmd_bufsz + 1);
+#else
+    cmd_buf = calloc(session.pool, cmd_bufsz + 1);
+#endif
+
   }
 
   while (TRUE) {
